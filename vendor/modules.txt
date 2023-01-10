@@ -2,7 +2,7 @@
 ## explicit; go 1.15
 github.com/bazelbuild/buildtools/build
 github.com/bazelbuild/buildtools/tables
-# github.com/bazelbuild/rules_go v0.35.0
+# github.com/bazelbuild/rules_go v0.37.0
 ## explicit; go 1.18
 github.com/bazelbuild/rules_go/go/tools/bazel
 github.com/bazelbuild/rules_go/go/tools/bazel_testing

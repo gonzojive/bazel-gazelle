@@ -18,11 +18,13 @@ limitations under the License.
 package walk
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/bazelbuild/bazel-gazelle/config"
@@ -279,7 +281,7 @@ func configure(cexts []config.Configurer, knownDirectives map[string]bool, c *co
 	if f != nil {
 		for _, d := range f.Directives {
 			if !knownDirectives[d.Key] {
-				log.Printf("%s: unknown directive: gazelle:%s", f.Path, d.Key)
+				log.Printf("%s", unknownDirectiveErr(f, d, knownDirectives).Error())
 				if c.Strict {
 					// TODO(https://github.com/bazelbuild/bazel-gazelle/issues/1029):
 					// Refactor to accumulate and propagate errors to main.
@@ -292,6 +294,21 @@ func configure(cexts []config.Configurer, knownDirectives map[string]bool, c *co
 		cext.Configure(c, rel, f)
 	}
 	return c
+}
+
+func unknownDirectiveErr(f *rule.File, dir rule.Directive, knownDirectives map[string]bool) error {
+	directives := keys(knownDirectives)
+	sort.Strings(directives)
+
+	return fmt.Errorf("%s: unknown directive: gazelle:%s; known directives: %s", f.Path, dir.Key, strings.Join(directives, ", "))
+}
+
+func keys[K comparable, V any](m map[K]V) []K {
+	var out []K
+	for k := range m {
+		out = append(out, k)
+	}
+	return out
 }
 
 func findGenFiles(wc *walkConfig, f *rule.File) []string {
